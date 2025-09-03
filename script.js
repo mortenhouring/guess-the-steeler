@@ -5,6 +5,7 @@ class GuessTheSteelerGame {
         this.currentQuestion = null;
         this.score = { correct: 0, incorrect: 0 };
         this.gameMode = 'classic'; // classic, legacy, newPlayers
+        this.nflverse = new NFLVerseIntegration();
         
         // DOM elements
         this.screens = {
@@ -103,18 +104,22 @@ class GuessTheSteelerGame {
     async loadPlayers() {
         try {
             // Load players based on selected game mode
+            let rawPlayers;
             switch (this.gameMode) {
                 case 'legacy':
-                    this.players = PlayerData.legacy;
+                    rawPlayers = PlayerData.legacy;
                     break;
                 case 'newPlayers':
-                    this.players = PlayerData.newPlayers;
+                    rawPlayers = PlayerData.newPlayers;
                     break;
                 case 'classic':
                 default:
-                    this.players = PlayerData.classic;
+                    rawPlayers = PlayerData.classic;
                     break;
             }
+            
+            // Enhance player data with NFLverse integration
+            this.players = this.nflverse.enhancePlayerData(rawPlayers);
             
             if (this.players.length === 0) {
                 throw new Error('No players loaded');
@@ -201,8 +206,9 @@ class GuessTheSteelerGame {
         }
         
         this.updateScore();
-        this.showPlayerInfo();
-        this.showScreen('feedback');
+        this.showPlayerInfo().then(() => {
+            this.showScreen('feedback');
+        });
     }
     
     checkAnswer(userAnswer, correctAnswer) {
@@ -210,9 +216,13 @@ class GuessTheSteelerGame {
         return normalize(userAnswer) === normalize(correctAnswer);
     }
     
-    showPlayerInfo() {
+    async showPlayerInfo() {
         const player = this.currentQuestion.player;
-        this.elements.playerImage.src = player.image;
+        
+        // Use enhanced image loading with fallback
+        const imageUrl = await this.nflverse.loadPlayerImage(player);
+        
+        this.elements.playerImage.src = imageUrl;
         this.elements.playerImage.alt = player.name;
         this.elements.playerName.textContent = `${player.name} #${player.number} - ${player.position}`;
         this.elements.playerTrivia.textContent = player.trivia;

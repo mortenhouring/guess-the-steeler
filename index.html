@@ -17,8 +17,33 @@
             </div>
         </header>
 
+        <!-- Menu screen -->
+        <div id="menu-screen" class="screen">
+            <div class="menu-content">
+                <h2>Choose Your Game Mode</h2>
+                <div class="menu-buttons">
+                    <button id="classic-mode-btn" class="mode-btn">
+                        <h3>Classic Mode</h3>
+                        <p>Current roster players and trivia</p>
+                    </button>
+                    <button id="legacy-mode-btn" class="mode-btn">
+                        <h3>Legacy Mode</h3>
+                        <p>Legendary Steelers throughout history</p>
+                    </button>
+                    <button id="new-player-mode-btn" class="mode-btn">
+                        <h3>New Player Mode</h3>
+                        <p>Players who joined this season</p>
+                    </button>
+                    <button id="leaderboard-btn" class="mode-btn">
+                        <h3>Leaderboard</h3>
+                        <p>View top scores</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Loading screen -->
-        <div id="loading-screen" class="screen">
+        <div id="loading-screen" class="screen hidden">
             <div class="loading-content">
                 <h2>Loading Steelers Roster...</h2>
                 <div class="spinner"></div>
@@ -34,6 +59,9 @@
                     <button id="submit-btn">→</button>
                 </div>
             </div>
+            <div class="bottom-nav">
+                <button id="menu-from-game-btn" class="nav-btn">Menu</button>
+            </div>
         </div>
 
         <!-- Feedback screen -->
@@ -46,6 +74,28 @@
                     <p id="player-trivia"></p>
                 </div>
                 <button id="next-btn">Next Question</button>
+            </div>
+            <div class="bottom-nav">
+                <button id="menu-from-feedback-btn" class="nav-btn">Menu</button>
+            </div>
+        </div>
+
+        <!-- Leaderboard screen -->
+        <div id="leaderboard-screen" class="screen hidden">
+            <div class="leaderboard-content">
+                <h2>Leaderboard</h2>
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item header">
+                        <span class="rank">Rank</span>
+                        <span class="score">Score</span>
+                        <span class="accuracy">Accuracy</span>
+                        <span class="mode">Mode</span>
+                    </div>
+                    <div id="leaderboard-entries">
+                        <!-- Leaderboard entries will be populated here -->
+                    </div>
+                </div>
+                <button id="back-to-menu-btn">Back to Menu</button>
             </div>
         </div>
 
@@ -75,6 +125,8 @@
         </div>
     </div>
 
+    <script src="playerData.js"></script>
+    <script src="nflverse.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

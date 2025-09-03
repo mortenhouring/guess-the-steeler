@@ -1,0 +1,225 @@
+// Player data for different game modes
+
+const PlayerData = {
+    // Current roster - classic mode
+    classic: [
+        {
+            name: "Russell Wilson",
+            number: 3,
+            position: "QB",
+            trivia: "Super Bowl champion quarterback bringing veteran leadership to Pittsburgh."
+        },
+        {
+            name: "Kenny Pickett",
+            number: 8,
+            position: "QB",
+            trivia: "First-round pick from Pittsburgh, hometown hero leading the Steel Curtain offense."
+        },
+        {
+            name: "Najee Harris",
+            number: 22,
+            position: "RB",
+            trivia: "Alabama product and first-round pick, known for his powerful running style and pass-catching ability."
+        },
+        {
+            name: "T.J. Watt",
+            number: 90,
+            position: "LB",
+            trivia: "Defensive Player of the Year winner and brother of NFL star J.J. Watt."
+        },
+        {
+            name: "Minkah Fitzpatrick",
+            number: 39,
+            position: "S",
+            trivia: "All-Pro safety acquired from Miami, known for his game-changing interceptions."
+        },
+        {
+            name: "Cam Heyward",
+            number: 97,
+            position: "DT",
+            trivia: "Team captain and defensive anchor, son of former NFL player Craig 'Ironhead' Heyward."
+        },
+        {
+            name: "George Pickens",
+            number: 14,
+            position: "WR",
+            trivia: "Georgia standout known for spectacular catches and explosive speed downfield."
+        },
+        {
+            name: "Diontae Johnson",
+            number: 18,
+            position: "WR",
+            trivia: "Toledo product with exceptional route-running ability and reliable hands."
+        },
+        {
+            name: "Pat Freiermuth",
+            number: 88,
+            position: "TE",
+            trivia: "Penn State tight end known as 'The Muth', excellent red zone target."
+        },
+        {
+            name: "Alex Highsmith",
+            number: 56,
+            position: "LB",
+            trivia: "Charlotte product who developed into a premier pass rusher opposite T.J. Watt."
+        },
+        {
+            name: "Jaylen Warren",
+            number: 30,
+            position: "RB",
+            trivia: "Undrafted free agent from Oklahoma State who earned a roster spot with his versatility."
+        },
+        {
+            name: "Calvin Austin III",
+            number: 19,
+            position: "WR",
+            trivia: "Memphis speedster drafted for his return ability and deep threat potential."
+        },
+        {
+            name: "Broderick Jones",
+            number: 76,
+            position: "OT",
+            trivia: "Georgia offensive tackle and first-round pick protecting the quarterback's blind side."
+        },
+        {
+            name: "Joey Porter Jr.",
+            number: 24,
+            position: "CB",
+            trivia: "Son of former Steelers linebacker Joey Porter, following in his father's footsteps."
+        },
+        {
+            name: "Arthur Smith",
+            number: 35,
+            position: "FB",
+            trivia: "Fullback who excels in short-yardage situations and goal-line packages."
+        }
+    ],
+
+    // Legendary Steelers - legacy mode
+    legacy: [
+        {
+            name: "Terry Bradshaw",
+            number: 12,
+            position: "QB",
+            trivia: "Four-time Super Bowl champion quarterback, Hall of Famer who led the Steel Curtain dynasty of the 1970s."
+        },
+        {
+            name: "Franco Harris",
+            number: 32,
+            position: "RB",
+            trivia: "Made the legendary 'Immaculate Reception' in 1972, first Steelers player to rush for 1,000 yards."
+        },
+        {
+            name: "Lynn Swann",
+            number: 88,
+            position: "WR",
+            trivia: "Hall of Fame receiver known for acrobatic catches, Super Bowl X MVP with four championship rings."
+        },
+        {
+            name: "John Stallworth",
+            number: 82,
+            position: "WR",
+            trivia: "Hall of Fame receiver and four-time Super Bowl champion, known for clutch playoff performances."
+        },
+        {
+            name: "Joe Greene",
+            number: 75,
+            position: "DT",
+            trivia: "'Mean Joe Greene' - the anchor of the Steel Curtain defense, 4-time Super Bowl champion and Hall of Famer."
+        },
+        {
+            name: "Jack Lambert",
+            number: 58,
+            position: "LB",
+            trivia: "Fierce middle linebacker of the Steel Curtain, Hall of Famer known for his intimidating presence."
+        },
+        {
+            name: "Jack Ham",
+            number: 59,
+            position: "LB",
+            trivia: "Hall of Fame outside linebacker, considered one of the greatest defenders in NFL history."
+        },
+        {
+            name: "Mel Blount",
+            number: 47,
+            position: "CB",
+            trivia: "Hall of Fame cornerback so dominant that the 'Mel Blount Rule' was created to limit contact downfield."
+        },
+        {
+            name: "Ben Roethlisberger",
+            number: 7,
+            position: "QB",
+            trivia: "'Big Ben' - two-time Super Bowl champion quarterback, known for his size and clutch performances."
+        },
+        {
+            name: "Troy Polamalu",
+            number: 43,
+            position: "S",
+            trivia: "Hall of Fame safety with flowing hair and incredible instincts, Defensive Player of the Year in 2010."
+        },
+        {
+            name: "Hines Ward",
+            number: 86,
+            position: "WR",
+            trivia: "Super Bowl XL MVP receiver known for his smile and crushing blocks, beloved team leader."
+        },
+        {
+            name: "Jerome Bettis",
+            number: 36,
+            position: "RB",
+            trivia: "'The Bus' - Hall of Fame running back who helped deliver Super Bowl XL to his hometown Pittsburgh."
+        }
+    ],
+
+    // New players for 2024 season
+    newPlayers: [
+        {
+            name: "Russell Wilson",
+            number: 3,
+            position: "QB",
+            trivia: "Former Denver Broncos and Seattle Seahawks QB. Super Bowl champion with 9 Pro Bowl selections. Graduated from Wisconsin."
+        },
+        {
+            name: "Justin Fields",
+            number: 2,
+            position: "QB",
+            trivia: "Former Chicago Bears quarterback. Ohio State product known for his mobility and big arm. 3 years NFL experience."
+        },
+        {
+            name: "Calvin Austin III",
+            number: 19,
+            position: "WR",
+            trivia: "Memphis speedster returning from injury. 4th round pick in 2022, missed most of his first two seasons."
+        },
+        {
+            name: "Roman Wilson",
+            number: 84,
+            position: "WR",
+            trivia: "Third-round rookie from Michigan. Won national championship with the Wolverines in 2023."
+        },
+        {
+            name: "Troy Fautanu",
+            number: 73,
+            position: "OT",
+            trivia: "First-round pick from Washington. Versatile lineman who can play both tackle positions."
+        },
+        {
+            name: "Zach Frazier",
+            number: 54,
+            position: "C",
+            trivia: "Second-round center from West Virginia. In-state product expected to anchor the offensive line."
+        },
+        {
+            name: "Payton Wilson",
+            number: 51,
+            position: "LB",
+            trivia: "Third-round linebacker from NC State. ACC Defensive Player of the Year in 2023."
+        },
+        {
+            name: "Logan Lee",
+            number: 92,
+            position: "DT",
+            trivia: "Sixth-round defensive tackle from Iowa. Part of a dominant Hawkeyes defensive line."
+        }
+    ]
+};

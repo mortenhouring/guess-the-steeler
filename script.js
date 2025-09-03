@@ -6,6 +6,7 @@ class GuessTheSteelerGame {
         this.score = { correct: 0, incorrect: 0 };
         this.gameMode = 'classic'; // classic, legacy, newPlayers
         this.nflverse = new NFLVerseIntegration();
+        this.sleeperAPI = new SleeperAPIIntegration();
         
         // DOM elements
         this.screens = {
@@ -101,19 +102,34 @@ class GuessTheSteelerGame {
     
     async loadPlayers() {
         try {
-            // Load players based on selected game mode
             let rawPlayers;
-            switch (this.gameMode) {
-                case 'legacy':
-                    rawPlayers = PlayerData.legacy;
-                    break;
-                case 'newPlayers':
-                    rawPlayers = PlayerData.newPlayers;
-                    break;
-                case 'classic':
-                default:
+            
+            console.log(`Loading players for game mode: ${this.gameMode}`);
+            
+            // For classic mode, try to use Sleeper API first
+            if (this.gameMode === 'classic') {
+                try {
+                    console.log('Attempting to load current roster from Sleeper API...');
+                    rawPlayers = await this.sleeperAPI.getCurrentSteelersRoster();
+                    console.log(`Loaded ${rawPlayers.length} players from Sleeper API`);
+                } catch (apiError) {
+                    console.warn('Sleeper API failed, falling back to static data:', apiError);
                     rawPlayers = PlayerData.classic;
-                    break;
+                }
+            } else {
+                // For legacy and newPlayers modes, always use static data
+                console.log(`Using static data for ${this.gameMode} mode`);
+                switch (this.gameMode) {
+                    case 'legacy':
+                        rawPlayers = PlayerData.legacy;
+                        break;
+                    case 'newPlayers':
+                        rawPlayers = PlayerData.newPlayers;
+                        break;
+                    default:
+                        rawPlayers = PlayerData.classic;
+                        break;
+                }
             }
             
             // Enhance player data with NFLverse integration

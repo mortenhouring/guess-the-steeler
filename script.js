@@ -62,6 +62,9 @@ class GuessTheSteelerGame {
     
     async loadPlayers() {
         try {
+            // Test if NFL.com allows cross-origin requests
+            await this.testNFLCors();
+            
             // Due to CORS restrictions, we'll use a fallback roster for now
             // In a production environment, you'd use a backend service or CORS proxy
             this.players = await this.getFallbackRoster();
@@ -71,6 +74,36 @@ class GuessTheSteelerGame {
             }
         } catch (error) {
             throw new Error('Unable to load Steelers roster');
+        }
+    }
+    
+    async testNFLCors() {
+        console.log('Testing NFL.com CORS policy...');
+        try {
+            // Attempt to fetch from NFL.com's Steelers roster page
+            const response = await fetch('https://www.nfl.com/teams/pittsburgh-steelers/roster/', {
+                method: 'GET',
+                mode: 'cors', // Explicitly request CORS
+            });
+            
+            if (response.ok) {
+                console.log('✅ NFL.com allows cross-origin requests (CORS enabled)');
+                return true;
+            } else {
+                console.log('⚠️ NFL.com responded but with status:', response.status);
+                return false;
+            }
+        } catch (error) {
+            if (error.name === 'TypeError' && error.message.includes('CORS')) {
+                console.error('❌ CORS Error: NFL.com does not allow cross-origin requests');
+                console.error('Cross-origin requests to NFL.com are blocked by CORS policy');
+            } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                console.error('❌ CORS Error: NFL.com does not allow cross-origin requests');
+                console.error('Failed to fetch from NFL.com - likely due to CORS restrictions');
+            } else {
+                console.error('❌ Network Error when testing NFL.com CORS:', error.message);
+            }
+            return false;
         }
     }
     

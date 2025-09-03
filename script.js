@@ -47,7 +47,11 @@ class GuessTheSteelerGame {
             backToMenuBtn: document.getElementById('back-to-menu-btn'),
             
             // Leaderboard elements
-            leaderboardEntries: document.getElementById('leaderboard-entries')
+            leaderboardEntries: document.getElementById('leaderboard-entries'),
+            
+            // Loading screen elements
+            loadingMessage: document.getElementById('loading-message'),
+            loadingStatus: document.getElementById('loading-status')
         };
         
         this.bindEvents();
@@ -88,12 +92,26 @@ class GuessTheSteelerGame {
     
     async init() {
         this.showScreen('loading');
+        
+        // Set initial loading message based on game mode
+        const modeNames = {
+            'classic': 'Current Roster',
+            'legacy': 'Legacy Players',
+            'newPlayers': 'New Players'
+        };
+        this.updateLoadingMessage(`Loading ${modeNames[this.gameMode] || 'Players'}...`, 'Checking cache...');
+        
         try {
             await this.loadPlayers();
-            // Add a small delay to show the loading screen
+            
+            // Provide feedback about successful load
+            const playerCount = this.players.length;
+            this.updateLoadingMessage('Ready to play!', `Loaded ${playerCount} players`);
+            
+            // Add a brief delay to show success message
             setTimeout(() => {
                 this.nextQuestion();
-            }, 1500);
+            }, 800);
         } catch (error) {
             console.error('Failed to load players:', error);
             this.showScreen('error');
@@ -110,26 +128,33 @@ class GuessTheSteelerGame {
             if (this.gameMode === 'classic') {
                 try {
                     console.log('Attempting to load current roster from Sleeper API...');
+                    this.updateLoadingMessage('Loading Current Roster...', 'Fetching from API or cache...');
                     rawPlayers = await this.sleeperAPI.getCurrentSteelersRoster();
                     console.log(`Loaded ${rawPlayers.length} players from Sleeper API`);
+                    this.updateLoadingMessage('Current Roster Loaded!', `Found ${rawPlayers.length} active players`);
                 } catch (apiError) {
                     console.warn('Sleeper API failed, falling back to static data:', apiError);
+                    this.updateLoadingMessage('API Unavailable', 'Using offline roster...');
                     rawPlayers = PlayerData.classic;
                 }
             } else if (this.gameMode === 'newPlayers') {
                 // Use Sleeper API exclusively for new players
                 try {
                     console.log('Loading new players from Sleeper API...');
+                    this.updateLoadingMessage('Loading New Players...', 'Fetching rookies and new signings...');
                     rawPlayers = await this.sleeperAPI.getNewSteelersPlayers();
                     console.log(`Loaded ${rawPlayers.length} new players from Sleeper API`);
+                    this.updateLoadingMessage('New Players Loaded!', `Found ${rawPlayers.length} new additions`);
                 } catch (apiError) {
                     console.error('Sleeper API failed for new players:', apiError);
+                    this.updateLoadingMessage('API Unavailable', 'Using offline new players...');
                     // Fallback to static data if API fails
                     rawPlayers = PlayerData.newPlayers;
                 }
             } else {
                 // For legacy mode, use static data
                 console.log(`Using static data for ${this.gameMode} mode`);
+                this.updateLoadingMessage('Loading Legacy Players...', 'Loading franchise legends...');
                 rawPlayers = PlayerData.legacy;
             }
             
@@ -138,6 +163,7 @@ class GuessTheSteelerGame {
                 this.players = rawPlayers; // Use Sleeper data directly
             } else {
                 // Enhance legacy player data with NFLverse integration
+                this.updateLoadingMessage('Loading Legacy Players...', 'Enhancing with player images...');
                 this.players = this.nflverse.enhancePlayerData(rawPlayers);
             }
             
@@ -145,6 +171,7 @@ class GuessTheSteelerGame {
                 throw new Error('No players loaded');
             }
         } catch (error) {
+            this.updateLoadingMessage('Error Loading Players', 'Please check your connection...');
             throw new Error('Unable to load Steelers roster');
         }
     }
@@ -366,6 +393,16 @@ class GuessTheSteelerGame {
             this.elements.headerMenuBtn.classList.remove('hidden');
         } else {
             this.elements.headerMenuBtn.classList.add('hidden');
+        }
+    }
+
+    // Update loading screen messages
+    updateLoadingMessage(message, status = '') {
+        if (this.elements.loadingMessage) {
+            this.elements.loadingMessage.textContent = message;
+        }
+        if (this.elements.loadingStatus) {
+            this.elements.loadingStatus.textContent = status;
         }
     }
 }

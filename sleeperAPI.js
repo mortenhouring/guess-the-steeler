@@ -6,24 +6,146 @@ class SleeperAPIIntegration {
         this.baseUrl = 'https://api.sleeper.app/v1';
         this.playersEndpoint = `${this.baseUrl}/players/nfl`;
         this.steelersTeamId = 'PIT';
+        
+        // Memory cache
         this.cache = null;
         this.cacheTimestamp = null;
         this.cacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
         
+        // Persistent cache configuration
+        this.localStorageKey = 'steelers_roster_cache';
+        this.cacheVersionKey = 'steelers_cache_version';
+        this.currentCacheVersion = '1.1'; // Increment when data structure changes
+        this.localCacheTimeout = 12 * 60 * 60 * 1000; // 12 hours for localStorage cache
+        
+        // Error handling and retry configuration
+        this.maxRetries = 2;
+        this.retryDelay = 1000; // 1 second
+        this.requestTimeout = 10000; // 10 seconds
+        
         // Image endpoints for Sleeper
         this.imageBaseUrl = 'https://sleepercdn.com/content/nfl/players/thumb';
         this.fallbackImageUrl = 'https://sleepercdn.com/images/v2/icons/player_default.webp';
+        
+        // Debug mode
+        this.debugMode = false; // Set to true for detailed logging
     }
 
-    // Fetch all NFL players from Sleeper API
+    // Persistent cache management
+    saveToLocalStorage(data, type = 'roster') {
+        try {
+            const cacheData = {
+                data: data,
+                timestamp: Date.now(),
+                version: this.currentCacheVersion,
+                type: type
+            };
+            
+            const key = type === 'roster' ? this.localStorageKey : `${this.localStorageKey}_${type}`;
+            localStorage.setItem(key, JSON.stringify(cacheData));
+            
+            if (this.debugMode) {
+                console.log(`Saved ${data.length} ${type} players to localStorage`);
+            }
+        } catch (error) {
+            console.warn('Failed to save to localStorage:', error);
+        }
+    }
+
+    loadFromLocalStorage(type = 'roster') {
+        try {
+            const key = type === 'roster' ? this.localStorageKey : `${this.localStorageKey}_${type}`;
+            const cachedDataString = localStorage.getItem(key);
+            
+            if (!cachedDataString) {
+                return null;
+            }
+
+            const cachedData = JSON.parse(cachedDataString);
+            
+            // Check cache version
+            if (cachedData.version !== this.currentCacheVersion) {
+                if (this.debugMode) {
+                    console.log('Cache version mismatch, clearing localStorage cache');
+                }
+                localStorage.removeItem(key);
+                return null;
+            }
+
+            // Check if cache is still valid
+            const cacheAge = Date.now() - cachedData.timestamp;
+            if (cacheAge > this.localCacheTimeout) {
+                if (this.debugMode) {
+                    console.log('localStorage cache expired, removing');
+                }
+                localStorage.removeItem(key);
+                return null;
+            }
+
+            if (this.debugMode) {
+                console.log(`Loaded ${cachedData.data.length} ${type} players from localStorage cache (age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
+            }
+            
+            return cachedData.data;
+        } catch (error) {
+            console.warn('Failed to load from localStorage:', error);
+            return null;
+        }
+    }
+
+    clearLocalStorage() {
+        try {
+            localStorage.removeItem(this.localStorageKey);
+            localStorage.removeItem(`${this.localStorageKey}_newPlayers`);
+            localStorage.removeItem(this.cacheVersionKey);
+            console.log('Cleared Steelers roster cache from localStorage');
+        } catch (error) {
+            console.warn('Failed to clear localStorage cache:', error);
+        }
+    }
+
+    // Enhanced fetch with retry logic and timeout
+    async fetchWithRetry(url, retries = this.maxRetries) {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                if (this.debugMode) {
+                    console.log(`Fetch attempt ${attempt + 1}/${retries + 1} for ${url}`);
+                }
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), this.requestTimeout);
+
+                const response = await fetch(url, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return response;
+            } catch (error) {
+                console.warn(`Fetch attempt ${attempt + 1} failed:`, error.message);
+                
+                if (attempt === retries) {
+                    throw error;
+                }
+                
+                // Wait before retry
+                await new Promise(resolve => setTimeout(resolve, this.retryDelay * (attempt + 1)));
+            }
+        }
+    }
+
     async fetchPlayers() {
         try {
             console.log('Fetching players from Sleeper API...');
-            const response = await fetch(this.playersEndpoint);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            const response = await this.fetchWithRetry(this.playersEndpoint);
             
             const players = await response.json();
             console.log('Successfully fetched players from Sleeper API');
@@ -37,6 +159,14 @@ class SleeperAPIIntegration {
     // Get new Pittsburgh Steelers players (rookies and second-year players)
     async getNewSteelersPlayers() {
         try {
+            // Check localStorage cache first
+            const cachedData = this.loadFromLocalStorage('newPlayers');
+            if (cachedData && Array.isArray(cachedData) && cachedData.length > 0) {
+                console.log('Using localStorage cached new Steelers players data');
+                return cachedData;
+            }
+
+            console.log('Fetching fresh new Steelers players from API...');
             const allPlayers = await this.fetchPlayers();
             const newSteelersPlayers = [];
 
@@ -60,6 +190,9 @@ class SleeperAPIIntegration {
             // Sort by jersey number for consistency
             newSteelersPlayers.sort((a, b) => a.number - b.number);
 
+            // Cache the results
+            this.saveToLocalStorage(newSteelersPlayers, 'newPlayers');
+
             console.log(`Found ${newSteelersPlayers.length} new Steelers players`);
             return newSteelersPlayers;
 
@@ -70,13 +203,25 @@ class SleeperAPIIntegration {
     }
     async getCurrentSteelersRoster() {
         try {
-            // Check cache first
+            // Check memory cache first (fastest)
             if (this.cache && this.cacheTimestamp && 
                 (Date.now() - this.cacheTimestamp < this.cacheTimeout)) {
-                console.log('Using cached Steelers roster data');
+                console.log('Using memory cached Steelers roster data');
                 return this.cache;
             }
 
+            // Check localStorage cache second (fast, persistent)
+            const cachedData = this.loadFromLocalStorage('roster');
+            if (cachedData && Array.isArray(cachedData) && cachedData.length > 0) {
+                console.log('Using localStorage cached Steelers roster data');
+                // Update memory cache
+                this.cache = cachedData;
+                this.cacheTimestamp = Date.now();
+                return cachedData;
+            }
+
+            // Fetch fresh data from API (slowest)
+            console.log('Fetching fresh Steelers roster from API...');
             const allPlayers = await this.fetchPlayers();
             const steelersPlayers = [];
 
@@ -94,9 +239,10 @@ class SleeperAPIIntegration {
             // Sort by jersey number for consistency
             steelersPlayers.sort((a, b) => a.number - b.number);
 
-            // Cache the results
+            // Cache the results in both memory and localStorage
             this.cache = steelersPlayers;
             this.cacheTimestamp = Date.now();
+            this.saveToLocalStorage(steelersPlayers, 'roster');
 
             console.log(`Found ${steelersPlayers.length} active Steelers players`);
             return steelersPlayers;
@@ -234,9 +380,58 @@ class SleeperAPIIntegration {
         
         return this.fallbackImageUrl;
     }
+
+    // Enhanced cache management
     clearCache() {
         this.cache = null;
         this.cacheTimestamp = null;
+        console.log('Memory cache cleared');
+    }
+
+    clearAllCaches() {
+        this.clearCache();
+        this.clearLocalStorage();
+        console.log('All caches cleared');
+    }
+
+    // Get cache status for debugging
+    getCacheStatus() {
+        const memoryCache = this.cache ? {
+            size: this.cache.length,
+            age: this.cacheTimestamp ? Math.round((Date.now() - this.cacheTimestamp) / 1000 / 60) : null
+        } : null;
+
+        const localCache = {
+            roster: this.loadFromLocalStorage('roster') ? 'available' : 'empty',
+            newPlayers: this.loadFromLocalStorage('newPlayers') ? 'available' : 'empty'
+        };
+
+        return {
+            memory: memoryCache,
+            localStorage: localCache,
+            debugMode: this.debugMode
+        };
+    }
+
+    // Enable/disable debug mode
+    setDebugMode(enabled) {
+        this.debugMode = enabled;
+        console.log(`Debug mode ${enabled ? 'enabled' : 'disabled'}`);
+    }
+
+    // Refresh cache (force new API call)
+    async refreshCache(type = 'roster') {
+        console.log(`Refreshing ${type} cache...`);
+        
+        // Clear relevant caches
+        if (type === 'roster') {
+            this.clearCache();
+            localStorage.removeItem(this.localStorageKey);
+            return await this.getCurrentSteelersRoster();
+        } else if (type === 'newPlayers') {
+            localStorage.removeItem(`${this.localStorageKey}_newPlayers`);
+            return await this.getNewSteelersPlayers();
+        }
     }
 }
 

@@ -4,8 +4,8 @@
     --steelers-gold: #FFB612;
     --steelers-white: #FFFFFF;
     --steelers-light-gold: #FFC72C;
-    --error-red: #DC3545;
-    --success-green: #28A745;
+    --feedback-incorrect: #FF8C00;  /* Accessible orange instead of red */
+    --feedback-correct: #1E90FF;    /* Accessible blue instead of green */
 }
 
 /* Reset and base styles */
@@ -83,11 +83,11 @@ body {
 }
 
 .score .correct {
-    color: var(--success-green);
+    color: var(--feedback-correct);
 }
 
 .score .incorrect {
-    color: var(--error-red);
+    color: var(--feedback-incorrect);
 }
 
 /* Screen management */
@@ -199,12 +199,12 @@ body {
 }
 
 .result.correct {
-    background: var(--success-green);
+    background: var(--feedback-correct);
     color: var(--steelers-white);
 }
 
 .result.incorrect {
-    background: var(--error-red);
+    background: var(--feedback-incorrect);
     color: var(--steelers-white);
 }
 
@@ -314,7 +314,7 @@ body {
 
 /* Error screen */
 .error-content {
-    color: var(--error-red);
+    color: var(--feedback-incorrect);
     text-align: center;
 }
 

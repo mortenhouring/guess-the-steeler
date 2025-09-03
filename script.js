@@ -42,8 +42,7 @@ class GuessTheSteelerGame {
             leaderboardBtn: document.getElementById('leaderboard-btn'),
             
             // Navigation elements
-            menuFromGameBtn: document.getElementById('menu-from-game-btn'),
-            menuFromFeedbackBtn: document.getElementById('menu-from-feedback-btn'),
+            headerMenuBtn: document.getElementById('header-menu-btn'),
             backToMenuBtn: document.getElementById('back-to-menu-btn'),
             
             // Leaderboard elements
@@ -70,8 +69,7 @@ class GuessTheSteelerGame {
         this.elements.leaderboardBtn.addEventListener('click', () => this.showLeaderboard());
         
         // Navigation event listeners
-        this.elements.menuFromGameBtn.addEventListener('click', () => this.returnToMenu());
-        this.elements.menuFromFeedbackBtn.addEventListener('click', () => this.returnToMenu());
+        this.elements.headerMenuBtn.addEventListener('click', () => this.returnToMenu());
         this.elements.backToMenuBtn.addEventListener('click', () => this.showScreen('menu'));
     }
     
@@ -291,7 +289,7 @@ class GuessTheSteelerGame {
                     entry.className = 'leaderboard-item';
                     
                     const modeDisplay = {
-                        'classic': 'Classic',
+                        'classic': 'Current Roster',
                         'legacy': 'Legacy',
                         'newPlayers': 'New Players'
                     };
@@ -323,6 +321,13 @@ class GuessTheSteelerGame {
     showScreen(screenName) {
         Object.values(this.screens).forEach(screen => screen.classList.add('hidden'));
         this.screens[screenName].classList.remove('hidden');
+        
+        // Show/hide header menu button based on screen
+        if (screenName === 'game' || screenName === 'feedback') {
+            this.elements.headerMenuBtn.classList.remove('hidden');
+        } else {
+            this.elements.headerMenuBtn.classList.add('hidden');
+        }
     }
 }
 

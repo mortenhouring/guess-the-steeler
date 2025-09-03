@@ -147,7 +147,12 @@ class GuessTheSteelerGame {
         let question, answer, questionKey;
         
         if (questionType === 'name') {
-            question = `What number does ${player.name} wear?`;
+            // Use past tense for legacy mode
+            if (this.gameMode === 'legacy') {
+                question = `What number did ${player.name} wear?`;
+            } else {
+                question = `What number does ${player.name} wear?`;
+            }
             answer = player.number.toString();
             questionKey = `name-${player.name}`;
         } else {
@@ -184,7 +189,7 @@ class GuessTheSteelerGame {
         
         if (!userAnswer) {
             // Add visual feedback for empty input
-            this.elements.answerInput.style.borderColor = '#DC3545';
+            this.elements.answerInput.style.borderColor = '#FF8C00';  // Use accessible orange
             setTimeout(() => {
                 this.elements.answerInput.style.borderColor = '';
             }, 1000);

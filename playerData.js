@@ -110,6 +110,24 @@ const PlayerData = {
             number: 26,
             position: "CB",
             trivia: "Veteran cornerback acquired from Carolina, bringing speed and experience to the secondary."
+        },
+        {
+            name: "Isaac Seumalo",
+            number: 56,
+            position: "G",
+            trivia: "Veteran guard signed from Philadelphia Eagles, providing experience and stability to the offensive line."
+        },
+        {
+            name: "Cameron Johnston",
+            number: 6,
+            position: "P",
+            trivia: "Australian punter with exceptional leg strength, key special teams contributor."
+        },
+        {
+            name: "Chris Boswell",
+            number: 9,
+            position: "K",
+            trivia: "Veteran kicker known for his accuracy and clutch performances in playoff games."
         }
     ],
 

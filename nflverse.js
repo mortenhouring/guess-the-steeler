@@ -147,9 +147,16 @@ class NFLVerseIntegration {
             'Payton Wilson': '4432692',
             'Logan Lee': '4426138',
             'Donte Jackson': '3915511',
-            'Cameron Johnston': '3051926',
+            'Cameron Johnston': '2976499',  // Corrected ESPN ID for the punter
             'Ben Skowronek': '4240853',
-            'Ryan McCollum': '4431991'
+            'Ryan McCollum': '4431991',
+            
+            // Additional current roster players
+            'Calvin Austin III': '4430076',
+            'Jaylen Warren': '4568318',
+            'Isaac Seumalo': '2578570',
+            'Cameron Johnston': '2976499',
+            'Chris Boswell': '17210',
         };
         return knownPlayers[playerName] || null;
     }

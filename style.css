@@ -4,8 +4,8 @@
     --steelers-gold: #FFB612;
     --steelers-white: #FFFFFF;
     --steelers-light-gold: #FFC72C;
-    --feedback-incorrect: #FF8C00;  /* Accessible orange instead of red */
-    --feedback-correct: #1E90FF;    /* Accessible blue instead of green */
+    --feedback-incorrect: #2C2C2C;  /* Dark gray for better visibility instead of pure black */
+    --feedback-correct: #FFB612;    /* Steelers gold for correct */
 }
 
 /* Reset and base styles */
@@ -35,7 +35,7 @@ body {
 /* Header */
 .header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     border-bottom: 2px solid var(--steelers-gold);
     padding-bottom: 20px;
 }

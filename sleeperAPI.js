@@ -89,6 +89,8 @@ class SleeperAPIIntegration {
             position: sleeperPlayer.position || 'N/A',
             trivia: this.generateTrivia(fullName, sleeperPlayer),
             sleeperId: playerId,
+            // Add image URL from Sleeper API
+            imageUrl: this.getSleeperImageUrl(playerId),
             // Add additional data for image lookup
             firstName: sleeperPlayer.first_name,
             lastName: sleeperPlayer.last_name,
@@ -133,6 +135,12 @@ class SleeperAPIIntegration {
         return parts.length > 0 ? 
             `${parts.join(', ')}.` : 
             `Current Pittsburgh Steelers ${sleeperPlayer.position || 'player'}.`;
+    }
+
+    // Get Sleeper image URL for a player
+    getSleeperImageUrl(playerId) {
+        // Sleeper API provides player images in this format
+        return `https://sleepercdn.com/content/nfl/players/${playerId}.jpg`;
     }
 
     // Get position-specific trivia

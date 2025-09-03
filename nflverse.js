@@ -71,13 +71,18 @@ class NFLVerseIntegration {
     }
 
     getPlayerImage(player) {
-        // First try custom image URL for legacy players
+        // First try Sleeper image URL if available
+        if (player.imageUrl) {
+            return player.imageUrl;
+        }
+        
+        // Second try custom image URL for legacy players
         const customUrl = this.getCustomImageUrl(player.name);
         if (customUrl) {
             return customUrl;
         }
         
-        // Try ESPN headshot
+        // Third try ESPN headshot
         const espnId = this.getESPNId(player.name);
         if (espnId) {
             return this.getPlayerHeadshot(espnId, player.name);
@@ -185,9 +190,17 @@ class NFLVerseIntegration {
         });
     }
 
-    // Enhanced image loading with fallback
+    // Enhanced image loading with fallback - prioritize Sleeper API
     async loadPlayerImage(player) {
-        // First try custom image URL for legacy players
+        // First try Sleeper image URL if available
+        if (player.imageUrl) {
+            const isAccessible = await this.testImageUrl(player.imageUrl);
+            if (isAccessible) {
+                return player.imageUrl;
+            }
+        }
+        
+        // Second try custom image URL for legacy players
         const customUrl = this.getCustomImageUrl(player.name);
         if (customUrl) {
             const isAccessible = await this.testImageUrl(customUrl);
@@ -196,7 +209,7 @@ class NFLVerseIntegration {
             }
         }
         
-        // Try ESPN headshot
+        // Third try ESPN headshot
         const espnId = this.getESPNId(player.name);
         if (espnId) {
             const espnUrl = this.getPlayerHeadshot(espnId, player.name);

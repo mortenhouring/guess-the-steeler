@@ -106,25 +106,31 @@ class GuessTheSteelerGame {
             
             console.log(`Loading players for game mode: ${this.gameMode}`);
             
-            // For classic mode, try to use Sleeper API first
-            if (this.gameMode === 'classic') {
+            // For classic and newPlayers modes, try to use Sleeper API first
+            if (this.gameMode === 'classic' || this.gameMode === 'newPlayers') {
                 try {
                     console.log('Attempting to load current roster from Sleeper API...');
                     rawPlayers = await this.sleeperAPI.getCurrentSteelersRoster();
                     console.log(`Loaded ${rawPlayers.length} players from Sleeper API`);
+                    
+                    // For newPlayers mode, filter to only new players (those in our static newPlayers list)
+                    if (this.gameMode === 'newPlayers') {
+                        const newPlayerNames = PlayerData.newPlayers.map(p => p.name);
+                        rawPlayers = rawPlayers.filter(player => 
+                            newPlayerNames.includes(player.name)
+                        );
+                        console.log(`Filtered to ${rawPlayers.length} new players for New Player Mode`);
+                    }
                 } catch (apiError) {
                     console.warn('Sleeper API failed, falling back to static data:', apiError);
-                    rawPlayers = PlayerData.classic;
+                    rawPlayers = this.gameMode === 'classic' ? PlayerData.classic : PlayerData.newPlayers;
                 }
             } else {
-                // For legacy and newPlayers modes, always use static data
+                // For legacy mode, always use static data
                 console.log(`Using static data for ${this.gameMode} mode`);
                 switch (this.gameMode) {
                     case 'legacy':
                         rawPlayers = PlayerData.legacy;
-                        break;
-                    case 'newPlayers':
-                        rawPlayers = PlayerData.newPlayers;
                         break;
                     default:
                         rawPlayers = PlayerData.classic;

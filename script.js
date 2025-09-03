@@ -106,7 +106,7 @@ class GuessTheSteelerGame {
             
             console.log(`Loading players for game mode: ${this.gameMode}`);
             
-            // For classic mode, try to use Sleeper API first
+            // Use Sleeper API for all modes now
             if (this.gameMode === 'classic') {
                 try {
                     console.log('Attempting to load current roster from Sleeper API...');
@@ -116,24 +116,30 @@ class GuessTheSteelerGame {
                     console.warn('Sleeper API failed, falling back to static data:', apiError);
                     rawPlayers = PlayerData.classic;
                 }
-            } else {
-                // For legacy and newPlayers modes, always use static data
-                console.log(`Using static data for ${this.gameMode} mode`);
-                switch (this.gameMode) {
-                    case 'legacy':
-                        rawPlayers = PlayerData.legacy;
-                        break;
-                    case 'newPlayers':
-                        rawPlayers = PlayerData.newPlayers;
-                        break;
-                    default:
-                        rawPlayers = PlayerData.classic;
-                        break;
+            } else if (this.gameMode === 'newPlayers') {
+                // Use Sleeper API exclusively for new players
+                try {
+                    console.log('Loading new players from Sleeper API...');
+                    rawPlayers = await this.sleeperAPI.getNewSteelersPlayers();
+                    console.log(`Loaded ${rawPlayers.length} new players from Sleeper API`);
+                } catch (apiError) {
+                    console.error('Sleeper API failed for new players:', apiError);
+                    // Fallback to static data if API fails
+                    rawPlayers = PlayerData.newPlayers;
                 }
+            } else {
+                // For legacy mode, use static data
+                console.log(`Using static data for ${this.gameMode} mode`);
+                rawPlayers = PlayerData.legacy;
             }
             
-            // Enhance player data with NFLverse integration
-            this.players = this.nflverse.enhancePlayerData(rawPlayers);
+            // For Sleeper API data, we don't need NFLverse enhancement for images
+            if (this.gameMode === 'classic' || this.gameMode === 'newPlayers') {
+                this.players = rawPlayers; // Use Sleeper data directly
+            } else {
+                // Enhance legacy player data with NFLverse integration
+                this.players = this.nflverse.enhancePlayerData(rawPlayers);
+            }
             
             if (this.players.length === 0) {
                 throw new Error('No players loaded');
@@ -196,8 +202,13 @@ class GuessTheSteelerGame {
         
         this.elements.questionText.textContent = this.currentQuestion.question;
         this.elements.answerInput.value = '';
-        this.elements.answerInput.focus();
         this.showScreen('game');
+        
+        // Ensure the input field is focused and ready for typing
+        setTimeout(() => {
+            this.elements.answerInput.focus();
+            this.elements.answerInput.select(); // Select any existing text
+        }, 100); // Small delay to ensure screen transition completes
     }
     
     submitAnswer() {
@@ -238,8 +249,15 @@ class GuessTheSteelerGame {
     async showPlayerInfo() {
         const player = this.currentQuestion.player;
         
-        // Use enhanced image loading with fallback
-        const imageUrl = await this.nflverse.loadPlayerImage(player);
+        let imageUrl;
+        
+        // Use Sleeper API exclusively for images in classic and newPlayers modes
+        if ((this.gameMode === 'classic' || this.gameMode === 'newPlayers') && player.sleeperId) {
+            imageUrl = await this.sleeperAPI.getPlayerImageWithFallback(player.sleeperId, player.name);
+        } else {
+            // Use enhanced image loading with fallback for legacy players
+            imageUrl = await this.nflverse.loadPlayerImage(player);
+        }
         
         this.elements.playerImage.src = imageUrl;
         this.elements.playerImage.alt = player.name;

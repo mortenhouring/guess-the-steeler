@@ -139,13 +139,17 @@ class NFLVerseIntegration {
             'Jack Ham': '7',
             'Mel Blount': '8',
             
-            // New players 2024
+            // New players 2025
             'Justin Fields': '4241479',
             'Roman Wilson': '4685746',
             'Troy Fautanu': '4685513',
             'Zach Frazier': '4426761',
             'Payton Wilson': '4432692',
-            'Logan Lee': '4426138'
+            'Logan Lee': '4426138',
+            'Donte Jackson': '3915511',
+            'Cameron Johnston': '3051926',
+            'Ben Skowronek': '4240853',
+            'Ryan McCollum': '4431991'
         };
         return knownPlayers[playerName] || null;
     }

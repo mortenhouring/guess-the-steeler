@@ -189,55 +189,79 @@ const PlayerData = {
         }
     ],
 
-    // New players for 2024 season
+    // New players for 2025 season
     newPlayers: [
         {
             name: "Russell Wilson",
             number: 3,
             position: "QB",
-            trivia: "Former Denver Broncos and Seattle Seahawks QB. Super Bowl champion with 9 Pro Bowl selections. Graduated from Wisconsin."
+            trivia: "Former Denver Broncos and Seattle Seahawks QB. Super Bowl XLVIII champion with 9 Pro Bowl selections. Brought veteran leadership to Pittsburgh."
         },
         {
             name: "Justin Fields",
             number: 2,
             position: "QB",
-            trivia: "Former Chicago Bears quarterback. Ohio State product known for his mobility and big arm. 3 years NFL experience."
+            trivia: "Former Chicago Bears quarterback acquired via trade. Ohio State product known for his mobility and big arm. 3 years NFL experience."
         },
         {
             name: "Calvin Austin III",
             number: 19,
             position: "WR",
-            trivia: "Memphis speedster returning from injury. 4th round pick in 2022, missed most of his first two seasons."
+            trivia: "Memphis speedster finally healthy after missing most of 2022-2023 seasons with injuries. Expected to contribute as slot receiver and returner."
         },
         {
             name: "Roman Wilson",
             number: 84,
             position: "WR",
-            trivia: "Third-round rookie from Michigan. Won national championship with the Wolverines in 2023."
+            trivia: "Third-round rookie from Michigan. Won College Football Playoff National Championship with the Wolverines in 2023."
         },
         {
             name: "Troy Fautanu",
             number: 73,
             position: "OT",
-            trivia: "First-round pick from Washington. Versatile lineman who can play both tackle positions."
+            trivia: "First-round pick (20th overall) from Washington. Versatile offensive lineman who can play both tackle positions with excellent technique."
         },
         {
             name: "Zach Frazier",
             number: 54,
             position: "C",
-            trivia: "Second-round center from West Virginia. In-state product expected to anchor the offensive line."
+            trivia: "Second-round center from West Virginia. In-state product expected to anchor the offensive line for years to come."
         },
         {
             name: "Payton Wilson",
             number: 51,
             position: "LB",
-            trivia: "Third-round linebacker from NC State. ACC Defensive Player of the Year in 2023."
+            trivia: "Third-round linebacker from NC State. 2023 ACC Defensive Player of the Year with exceptional instincts and coverage skills."
         },
         {
             name: "Logan Lee",
             number: 92,
             position: "DT",
-            trivia: "Sixth-round defensive tackle from Iowa. Part of a dominant Hawkeyes defensive line."
+            trivia: "Sixth-round defensive tackle from Iowa. Part of a dominant Hawkeyes defensive line that led the nation in several categories."
+        },
+        {
+            name: "Ryan McCollum",
+            number: 71,
+            position: "C/G",
+            trivia: "Seventh-round offensive lineman from Texas. Versatile interior player who can contribute at both center and guard positions."
+        },
+        {
+            name: "Donte Jackson",
+            number: 26,
+            position: "CB",
+            trivia: "Veteran cornerback acquired from Carolina Panthers. Brings speed (4.32 40-yard dash) and experience to strengthen the secondary."
+        },
+        {
+            name: "Cameron Johnston",
+            number: 6,
+            position: "P",
+            trivia: "Australian punter signed from Houston Texans. Known for his powerful leg and ability to flip field position effectively."
+        },
+        {
+            name: "Ben Skowronek",
+            number: 82,
+            position: "WR",
+            trivia: "Notre Dame product claimed off waivers from Los Angeles Rams. Special teams contributor with receiving upside."
         }
     ]
 };

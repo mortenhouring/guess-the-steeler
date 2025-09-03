@@ -5,7 +5,7 @@ A comprehensive web-based trivia game designed for mobile devices that tests you
 ## Game Features
 
 ### Multiple Game Modes
-- **Classic Mode**: Current roster players with real-time trivia
+- **Current Roster Mode**: Current roster players with real-time trivia
 - **Legacy Mode**: Legendary Steelers throughout franchise history
 - **New Player Mode**: Focus on players who joined this season
 - **Leaderboard**: Track top scores across all game modes
@@ -15,11 +15,12 @@ A comprehensive web-based trivia game designed for mobile devices that tests you
 - **Score Tracking**: Persistent leaderboard with top 3 scores stored locally
 - **Mobile Optimized**: Designed specifically for iPhone and mobile screens
 - **Steelers Theme**: Authentic black and gold color scheme
+- **Header Navigation**: Convenient menu button positioned next to the title for easy access
 
 ### Game Mechanics
 - **Two Question Types**: "What number does [player] wear?" and "Who wears jersey number [number]?"
 - **Intelligent Fallbacks**: Seamless experience even with network limitations
-- **Fixed Navigation**: Easy mode switching with bottom navigation
+- **Header Navigation**: Easy mode switching with header-integrated menu button
 - **Progress Tracking**: Live score counter and accuracy percentage
 
 ## How to Play
@@ -32,12 +33,12 @@ A comprehensive web-based trivia game designed for mobile devices that tests you
 
 ## Game Modes Explained
 
-### Classic Mode
+### Current Roster Mode
 Current Pittsburgh Steelers roster including stars like:
 - Russell Wilson (#3) - Super Bowl champion quarterback
 - T.J. Watt (#90) - Defensive Player of the Year
 - Minkah Fitzpatrick (#39) - All-Pro safety
-- Kenny Pickett (#8) - Local hero from Pittsburgh
+- Justin Fields (#2) - Dynamic dual-threat quarterback
 
 ### Legacy Mode
 Legendary Steelers from throughout franchise history:
@@ -52,6 +53,7 @@ Players who joined the Steelers this season, featuring:
 - Justin Fields - Former Bears quarterback
 - Troy Fautanu - First-round rookie from Washington
 - Roman Wilson - Third-round rookie from Michigan
+- Donte Jackson - Veteran CB from Carolina Panthers
 
 ## Technical Features
 

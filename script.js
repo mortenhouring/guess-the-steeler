@@ -4,13 +4,16 @@ class GuessTheSteelerGame {
         this.usedQuestions = new Set();
         this.currentQuestion = null;
         this.score = { correct: 0, incorrect: 0 };
+        this.gameMode = 'classic'; // classic, legacy, newPlayers
         
         // DOM elements
         this.screens = {
+            menu: document.getElementById('menu-screen'),
             loading: document.getElementById('loading-screen'),
             game: document.getElementById('game-screen'),
             feedback: document.getElementById('feedback-screen'),
             gameOver: document.getElementById('game-over-screen'),
+            leaderboard: document.getElementById('leaderboard-screen'),
             error: document.getElementById('error-screen')
         };
         
@@ -29,11 +32,25 @@ class GuessTheSteelerGame {
             finalIncorrect: document.getElementById('final-incorrect'),
             accuracy: document.getElementById('accuracy'),
             restartBtn: document.getElementById('restart-btn'),
-            retryBtn: document.getElementById('retry-btn')
+            retryBtn: document.getElementById('retry-btn'),
+            
+            // Menu elements
+            classicModeBtn: document.getElementById('classic-mode-btn'),
+            legacyModeBtn: document.getElementById('legacy-mode-btn'),
+            newPlayerModeBtn: document.getElementById('new-player-mode-btn'),
+            leaderboardBtn: document.getElementById('leaderboard-btn'),
+            
+            // Navigation elements
+            menuFromGameBtn: document.getElementById('menu-from-game-btn'),
+            menuFromFeedbackBtn: document.getElementById('menu-from-feedback-btn'),
+            backToMenuBtn: document.getElementById('back-to-menu-btn'),
+            
+            // Leaderboard elements
+            leaderboardEntries: document.getElementById('leaderboard-entries')
         };
         
         this.bindEvents();
-        this.init();
+        this.showScreen('menu');
     }
     
     bindEvents() {
@@ -44,6 +61,29 @@ class GuessTheSteelerGame {
         this.elements.nextBtn.addEventListener('click', () => this.nextQuestion());
         this.elements.restartBtn.addEventListener('click', () => this.restart());
         this.elements.retryBtn.addEventListener('click', () => this.init());
+        
+        // Menu event listeners
+        this.elements.classicModeBtn.addEventListener('click', () => this.startGame('classic'));
+        this.elements.legacyModeBtn.addEventListener('click', () => this.startGame('legacy'));
+        this.elements.newPlayerModeBtn.addEventListener('click', () => this.startGame('newPlayers'));
+        this.elements.leaderboardBtn.addEventListener('click', () => this.showLeaderboard());
+        
+        // Navigation event listeners
+        this.elements.menuFromGameBtn.addEventListener('click', () => this.returnToMenu());
+        this.elements.menuFromFeedbackBtn.addEventListener('click', () => this.returnToMenu());
+        this.elements.backToMenuBtn.addEventListener('click', () => this.showScreen('menu'));
+    }
+    
+    startGame(mode) {
+        this.gameMode = mode;
+        this.init();
+    }
+    
+    returnToMenu() {
+        this.score = { correct: 0, incorrect: 0 };
+        this.usedQuestions.clear();
+        this.updateScore();
+        this.showScreen('menu');
     }
     
     async init() {
@@ -62,9 +102,19 @@ class GuessTheSteelerGame {
     
     async loadPlayers() {
         try {
-            // Due to CORS restrictions, we'll use a fallback roster for now
-            // In a production environment, you'd use a backend service or CORS proxy
-            this.players = await this.getFallbackRoster();
+            // Load players based on selected game mode
+            switch (this.gameMode) {
+                case 'legacy':
+                    this.players = PlayerData.legacy;
+                    break;
+                case 'newPlayers':
+                    this.players = PlayerData.newPlayers;
+                    break;
+                case 'classic':
+                default:
+                    this.players = PlayerData.classic;
+                    break;
+            }
             
             if (this.players.length === 0) {
                 throw new Error('No players loaded');
@@ -74,117 +124,8 @@ class GuessTheSteelerGame {
         }
     }
     
-    async getFallbackRoster() {
-        // Fallback roster with current 2024 Steelers players
-        // In production, this would be dynamically scraped
-        return [
-            {
-                name: "Kenny Pickett",
-                number: 8,
-                position: "QB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23000'%3EK. Pickett%0A%238%3C/text%3E%3C/svg%3E",
-                trivia: "First-round pick from Pittsburgh, hometown hero leading the Steel Curtain offense."
-            },
-            {
-                name: "Najee Harris",
-                number: 22,
-                position: "RB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23000'%3EN. Harris%0A%2322%3C/text%3E%3C/svg%3E",
-                trivia: "Alabama product and first-round pick, known for his powerful running style and pass-catching ability."
-            },
-            {
-                name: "T.J. Watt",
-                number: 90,
-                position: "LB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23000'%3ET.J. Watt%0A%2390%3C/text%3E%3C/svg%3E",
-                trivia: "Defensive Player of the Year winner and brother of NFL star J.J. Watt."
-            },
-            {
-                name: "Minkah Fitzpatrick",
-                number: 39,
-                position: "S",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EM. Fitzpatrick%0A%2339%3C/text%3E%3C/svg%3E",
-                trivia: "All-Pro safety acquired from Miami, known for his game-changing interceptions."
-            },
-            {
-                name: "Cam Heyward",
-                number: 97,
-                position: "DT",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EC. Heyward%0A%2397%3C/text%3E%3C/svg%3E",
-                trivia: "Team captain and defensive anchor, son of former NFL player Craig 'Ironhead' Heyward."
-            },
-            {
-                name: "George Pickens",
-                number: 14,
-                position: "WR",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EG. Pickens%0A%2314%3C/text%3E%3C/svg%3E",
-                trivia: "Georgia standout known for spectacular catches and explosive speed downfield."
-            },
-            {
-                name: "Diontae Johnson",
-                number: 18,
-                position: "WR",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3ED. Johnson%0A%2318%3C/text%3E%3C/svg%3E",
-                trivia: "Toledo product with exceptional route-running ability and reliable hands."
-            },
-            {
-                name: "Pat Freiermuth",
-                number: 88,
-                position: "TE",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EP. Freiermuth%0A%2388%3C/text%3E%3C/svg%3E",
-                trivia: "Penn State tight end known as 'The Muth', excellent red zone target."
-            },
-            {
-                name: "Alex Highsmith",
-                number: 56,
-                position: "LB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EA. Highsmith%0A%2356%3C/text%3E%3C/svg%3E",
-                trivia: "Charlotte product who developed into a premier pass rusher opposite T.J. Watt."
-            },
-            {
-                name: "Jaylen Warren",
-                number: 30,
-                position: "RB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EJ. Warren%0A%2330%3C/text%3E%3C/svg%3E",
-                trivia: "Undrafted free agent from Oklahoma State who earned a roster spot with his versatility."
-            },
-            {
-                name: "Calvin Austin III",
-                number: 19,
-                position: "WR",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EC. Austin III%0A%2319%3C/text%3E%3C/svg%3E",
-                trivia: "Memphis speedster drafted for his return ability and deep threat potential."
-            },
-            {
-                name: "Broderick Jones",
-                number: 76,
-                position: "OT",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EB. Jones%0A%2376%3C/text%3E%3C/svg%3E",
-                trivia: "Georgia offensive tackle and first-round pick protecting the quarterback's blind side."
-            },
-            {
-                name: "Joey Porter Jr.",
-                number: 24,
-                position: "CB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EJ. Porter Jr.%0A%2324%3C/text%3E%3C/svg%3E",
-                trivia: "Son of former Steelers linebacker Joey Porter, following in his father's footsteps."
-            },
-            {
-                name: "Russell Wilson",
-                number: 3,
-                position: "QB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3ER. Wilson%0A%233%3C/text%3E%3C/svg%3E",
-                trivia: "Super Bowl champion quarterback bringing veteran leadership to Pittsburgh."
-            },
-            {
-                name: "Arthur Smith",
-                number: 35,
-                position: "FB",
-                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EA. Smith%0A%2335%3C/text%3E%3C/svg%3E",
-                trivia: "Fullback who excels in short-yardage situations and goal-line packages."
-            }
-        ];
-    }
+    // Remove the old getFallbackRoster method since we now use PlayerData
+    // async getFallbackRoster() { ... }
     
     generateQuestion() {
         const availablePlayers = this.players.filter(player => 
@@ -290,14 +231,83 @@ class GuessTheSteelerGame {
         this.elements.finalIncorrect.textContent = this.score.incorrect;
         this.elements.accuracy.textContent = `${accuracy}%`;
         
+        // Save score to leaderboard
+        this.saveScore({
+            correct: this.score.correct,
+            incorrect: this.score.incorrect,
+            accuracy: accuracy,
+            mode: this.gameMode,
+            date: new Date().toLocaleDateString()
+        });
+        
         this.showScreen('gameOver');
+    }
+    
+    saveScore(scoreData) {
+        try {
+            let leaderboard = JSON.parse(localStorage.getItem('steelersLeaderboard') || '[]');
+            
+            leaderboard.push(scoreData);
+            
+            // Sort by correct answers first, then by accuracy
+            leaderboard.sort((a, b) => {
+                if (b.correct !== a.correct) {
+                    return b.correct - a.correct;
+                }
+                return b.accuracy - a.accuracy;
+            });
+            
+            // Keep only top 10 scores
+            leaderboard = leaderboard.slice(0, 10);
+            
+            localStorage.setItem('steelersLeaderboard', JSON.stringify(leaderboard));
+        } catch (error) {
+            console.error('Failed to save score:', error);
+        }
+    }
+    
+    showLeaderboard() {
+        try {
+            const leaderboard = JSON.parse(localStorage.getItem('steelersLeaderboard') || '[]');
+            const entriesContainer = this.elements.leaderboardEntries;
+            
+            entriesContainer.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                entriesContainer.innerHTML = '<div class="leaderboard-item empty">No scores yet - be the first!</div>';
+            } else {
+                leaderboard.slice(0, 3).forEach((score, index) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'leaderboard-item';
+                    
+                    const modeDisplay = {
+                        'classic': 'Classic',
+                        'legacy': 'Legacy',
+                        'newPlayers': 'New Players'
+                    };
+                    
+                    entry.innerHTML = `
+                        <span class="rank">${index + 1}</span>
+                        <span class="score">${score.correct}/${score.correct + score.incorrect}</span>
+                        <span class="accuracy">${score.accuracy}%</span>
+                        <span class="mode">${modeDisplay[score.mode] || score.mode}</span>
+                    `;
+                    
+                    entriesContainer.appendChild(entry);
+                });
+            }
+            
+            this.showScreen('leaderboard');
+        } catch (error) {
+            console.error('Failed to load leaderboard:', error);
+        }
     }
     
     restart() {
         this.score = { correct: 0, incorrect: 0 };
         this.usedQuestions.clear();
         this.updateScore();
-        this.nextQuestion();
+        this.showScreen('menu');
     }
     
     showScreen(screenName) {

@@ -50,7 +50,10 @@ class GuessTheSteelerGame {
         this.showScreen('loading');
         try {
             await this.loadPlayers();
-            this.nextQuestion();
+            // Add a small delay to show the loading screen
+            setTimeout(() => {
+                this.nextQuestion();
+            }, 1500);
         } catch (error) {
             console.error('Failed to load players:', error);
             this.showScreen('error');
@@ -79,105 +82,105 @@ class GuessTheSteelerGame {
                 name: "Kenny Pickett",
                 number: 8,
                 position: "QB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/z0qwayx6qr7zt5oirgjm",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23000'%3EK. Pickett%0A%238%3C/text%3E%3C/svg%3E",
                 trivia: "First-round pick from Pittsburgh, hometown hero leading the Steel Curtain offense."
             },
             {
                 name: "Najee Harris",
                 number: 22,
                 position: "RB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/ixjuidyebahq9jwlaygl",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23000'%3EN. Harris%0A%2322%3C/text%3E%3C/svg%3E",
                 trivia: "Alabama product and first-round pick, known for his powerful running style and pass-catching ability."
             },
             {
                 name: "T.J. Watt",
                 number: 90,
                 position: "LB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/tkfeq4j8ykz7l9g5bwl1",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23000'%3ET.J. Watt%0A%2390%3C/text%3E%3C/svg%3E",
                 trivia: "Defensive Player of the Year winner and brother of NFL star J.J. Watt."
             },
             {
                 name: "Minkah Fitzpatrick",
                 number: 39,
                 position: "S",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/okncvb4rgdojixvyujr3",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EM. Fitzpatrick%0A%2339%3C/text%3E%3C/svg%3E",
                 trivia: "All-Pro safety acquired from Miami, known for his game-changing interceptions."
             },
             {
                 name: "Cam Heyward",
                 number: 97,
                 position: "DT",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/aqeaupihuzgynwhmnqgl",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EC. Heyward%0A%2397%3C/text%3E%3C/svg%3E",
                 trivia: "Team captain and defensive anchor, son of former NFL player Craig 'Ironhead' Heyward."
             },
             {
                 name: "George Pickens",
                 number: 14,
                 position: "WR",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/jvx2x0txu7xg3hlgdlnn",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EG. Pickens%0A%2314%3C/text%3E%3C/svg%3E",
                 trivia: "Georgia standout known for spectacular catches and explosive speed downfield."
             },
             {
                 name: "Diontae Johnson",
                 number: 18,
                 position: "WR",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/xnqnmqvhcfm1s8fomcio",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3ED. Johnson%0A%2318%3C/text%3E%3C/svg%3E",
                 trivia: "Toledo product with exceptional route-running ability and reliable hands."
             },
             {
                 name: "Pat Freiermuth",
                 number: 88,
                 position: "TE",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/pj0nyncsulrfhqv8qhqs",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EP. Freiermuth%0A%2388%3C/text%3E%3C/svg%3E",
                 trivia: "Penn State tight end known as 'The Muth', excellent red zone target."
             },
             {
                 name: "Alex Highsmith",
                 number: 56,
                 position: "LB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/zyhtnefkb5nqv5mmqolv",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EA. Highsmith%0A%2356%3C/text%3E%3C/svg%3E",
                 trivia: "Charlotte product who developed into a premier pass rusher opposite T.J. Watt."
             },
             {
                 name: "Jaylen Warren",
                 number: 30,
                 position: "RB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/cjr6qikepdjkzsxayvim",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EJ. Warren%0A%2330%3C/text%3E%3C/svg%3E",
                 trivia: "Undrafted free agent from Oklahoma State who earned a roster spot with his versatility."
             },
             {
                 name: "Calvin Austin III",
                 number: 19,
                 position: "WR",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/rqxcclzp0kvh1qwkddlv",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EC. Austin III%0A%2319%3C/text%3E%3C/svg%3E",
                 trivia: "Memphis speedster drafted for his return ability and deep threat potential."
             },
             {
                 name: "Broderick Jones",
                 number: 76,
                 position: "OT",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/w8nfxjhzhxjc2rpqmm8s",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EB. Jones%0A%2376%3C/text%3E%3C/svg%3E",
                 trivia: "Georgia offensive tackle and first-round pick protecting the quarterback's blind side."
             },
             {
                 name: "Joey Porter Jr.",
                 number: 24,
                 position: "CB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/kdltvvywfgbzj8hmmgbm",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='10' fill='%23000'%3EJ. Porter Jr.%0A%2324%3C/text%3E%3C/svg%3E",
                 trivia: "Son of former Steelers linebacker Joey Porter, following in his father's footsteps."
             },
             {
                 name: "Russell Wilson",
                 number: 3,
                 position: "QB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/edszeyfbqryocd1eqf8b",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3ER. Wilson%0A%233%3C/text%3E%3C/svg%3E",
                 trivia: "Super Bowl champion quarterback bringing veteran leadership to Pittsburgh."
             },
             {
                 name: "Arthur Smith",
                 number: 35,
                 position: "FB",
-                image: "https://static.www.nfl.com/image/private/t_player_profile_landscape/f_auto/league/vtgnl8w6r7jb8vt5twdb",
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23FFB612'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='11' fill='%23000'%3EA. Smith%0A%2335%3C/text%3E%3C/svg%3E",
                 trivia: "Fullback who excels in short-yardage situations and goal-line packages."
             }
         ];
@@ -236,6 +239,11 @@ class GuessTheSteelerGame {
         const userAnswer = this.elements.answerInput.value.trim();
         
         if (!userAnswer) {
+            // Add visual feedback for empty input
+            this.elements.answerInput.style.borderColor = '#DC3545';
+            setTimeout(() => {
+                this.elements.answerInput.style.borderColor = '';
+            }, 1000);
             return;
         }
         

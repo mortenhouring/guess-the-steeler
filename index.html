@@ -10,7 +10,10 @@
     <div class="container">
         <!-- Header with score -->
         <header class="header">
-            <h1>Guess the Steeler</h1>
+            <div class="header-top">
+                <h1>Guess the Steeler</h1>
+                <button id="header-menu-btn" class="header-menu-btn hidden">Menu</button>
+            </div>
             <div class="score">
                 <span class="correct">Correct: <span id="correct-count">0</span></span>
                 <span class="incorrect">Incorrect: <span id="incorrect-count">0</span></span>
@@ -23,7 +26,7 @@
                 <h2>Choose Your Game Mode</h2>
                 <div class="menu-buttons">
                     <button id="classic-mode-btn" class="mode-btn">
-                        <h3>Classic Mode</h3>
+                        <h3>Current Roster Mode</h3>
                         <p>Current roster players and trivia</p>
                     </button>
                     <button id="legacy-mode-btn" class="mode-btn">
@@ -59,9 +62,6 @@
                     <button id="submit-btn">→</button>
                 </div>
             </div>
-            <div class="bottom-nav">
-                <button id="menu-from-game-btn" class="nav-btn">Menu</button>
-            </div>
         </div>
 
         <!-- Feedback screen -->
@@ -74,9 +74,6 @@
                     <p id="player-trivia"></p>
                 </div>
                 <button id="next-btn">Next Question</button>
-            </div>
-            <div class="bottom-nav">
-                <button id="menu-from-feedback-btn" class="nav-btn">Menu</button>
             </div>
         </div>
 

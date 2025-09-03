@@ -4,8 +4,9 @@ class GuessTheSteelerGame {
         this.usedQuestions = new Set();
         this.currentQuestion = null;
         this.score = { correct: 0, incorrect: 0 };
-        this.gameMode = 'classic'; // classic, legacy, newPlayers
+        this.gameMode = 'classic'; // classic, legacy, newPlayers, fantasy
         this.nflverse = new NFLVerseIntegration();
+        this.sleeperApi = new SleeperApiIntegration();
         
         // DOM elements
         this.screens = {
@@ -39,6 +40,7 @@ class GuessTheSteelerGame {
             classicModeBtn: document.getElementById('classic-mode-btn'),
             legacyModeBtn: document.getElementById('legacy-mode-btn'),
             newPlayerModeBtn: document.getElementById('new-player-mode-btn'),
+            fantasyModeBtn: document.getElementById('fantasy-mode-btn'),
             leaderboardBtn: document.getElementById('leaderboard-btn'),
             
             // Navigation elements
@@ -66,6 +68,7 @@ class GuessTheSteelerGame {
         this.elements.classicModeBtn.addEventListener('click', () => this.startGame('classic'));
         this.elements.legacyModeBtn.addEventListener('click', () => this.startGame('legacy'));
         this.elements.newPlayerModeBtn.addEventListener('click', () => this.startGame('newPlayers'));
+        this.elements.fantasyModeBtn.addEventListener('click', () => this.startGame('fantasy'));
         this.elements.leaderboardBtn.addEventListener('click', () => this.showLeaderboard());
         
         // Navigation event listeners
@@ -74,6 +77,7 @@ class GuessTheSteelerGame {
     }
     
     startGame(mode) {
+        console.log(`Starting game in mode: ${mode}`);
         this.gameMode = mode;
         this.init();
     }
@@ -101,6 +105,7 @@ class GuessTheSteelerGame {
     
     async loadPlayers() {
         try {
+            console.log(`Loading players for mode: ${this.gameMode}`);
             // Load players based on selected game mode
             let rawPlayers;
             switch (this.gameMode) {
@@ -109,6 +114,10 @@ class GuessTheSteelerGame {
                     break;
                 case 'newPlayers':
                     rawPlayers = PlayerData.newPlayers;
+                    break;
+                case 'fantasy':
+                    // For fantasy mode, use current roster with enhanced fantasy data
+                    rawPlayers = PlayerData.classic;
                     break;
                 case 'classic':
                 default:
@@ -119,6 +128,12 @@ class GuessTheSteelerGame {
             // Enhance player data with NFLverse integration
             this.players = this.nflverse.enhancePlayerData(rawPlayers);
             
+            // For fantasy mode, enhance with Sleeper API data
+            if (this.gameMode === 'fantasy') {
+                console.log('Loading fantasy data from Sleeper API...');
+                this.players = await this.enhanceWithFantasyData(this.players);
+            }
+            
             if (this.players.length === 0) {
                 throw new Error('No players loaded');
             }
@@ -127,10 +142,44 @@ class GuessTheSteelerGame {
         }
     }
     
+    async enhanceWithFantasyData(players) {
+        try {
+            const enhancedPlayers = [];
+            
+            // Process players in batches to avoid overwhelming the API
+            for (const player of players) {
+                try {
+                    const enhancedPlayer = await this.sleeperApi.enhancePlayerWithFantasyData(player);
+                    enhancedPlayers.push(enhancedPlayer);
+                } catch (error) {
+                    console.warn(`Failed to enhance ${player.name} with fantasy data:`, error);
+                    enhancedPlayers.push(player); // Add without fantasy data
+                }
+                
+                // Small delay to be respectful to the API
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            return enhancedPlayers;
+        } catch (error) {
+            console.warn('Failed to enhance players with fantasy data, using basic data:', error);
+            return players; // Return without fantasy enhancement
+        }
+    }
+    
     // Remove the old getFallbackRoster method since we now use PlayerData
     // async getFallbackRoster() { ... }
     
     generateQuestion() {
+        // For fantasy mode, try to generate fantasy-specific questions
+        if (this.gameMode === 'fantasy') {
+            const fantasyQuestion = this.sleeperApi.generateFantasyQuestion(this.players);
+            if (fantasyQuestion) {
+                return this.adaptFantasyQuestion(fantasyQuestion);
+            }
+            // Fall back to regular questions if no fantasy data available
+        }
+        
         const availablePlayers = this.players.filter(player => 
             !this.usedQuestions.has(`name-${player.name}`) && 
             !this.usedQuestions.has(`number-${player.number}`)
@@ -168,6 +217,29 @@ class GuessTheSteelerGame {
             answer,
             player,
             type: questionType
+        };
+    }
+    
+    adaptFantasyQuestion(fantasyQuestion) {
+        // Adapt fantasy question to our game format
+        const questionKey = `fantasy-${fantasyQuestion.player.name}-${fantasyQuestion.type}`;
+        
+        // Check if we've already used this type of question for this player
+        if (this.usedQuestions.has(questionKey)) {
+            return null; // Let it fall back to regular questions
+        }
+        
+        this.usedQuestions.add(questionKey);
+        
+        return {
+            question: fantasyQuestion.question,
+            answer: fantasyQuestion.answer,
+            player: fantasyQuestion.player,
+            type: 'fantasy',
+            fantasyType: fantasyQuestion.type,
+            explanation: fantasyQuestion.explanation,
+            correctRange: fantasyQuestion.correctRange, // For numeric answers with tolerance
+            options: fantasyQuestion.options // For multiple choice questions
         };
     }
     
@@ -215,6 +287,13 @@ class GuessTheSteelerGame {
     }
     
     checkAnswer(userAnswer, correctAnswer) {
+        // Handle fantasy questions with numeric ranges
+        if (this.currentQuestion.type === 'fantasy' && this.currentQuestion.correctRange) {
+            const userNum = parseFloat(userAnswer);
+            const [min, max] = this.currentQuestion.correctRange;
+            return !isNaN(userNum) && userNum >= min && userNum <= max;
+        }
+        
         const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
         return normalize(userAnswer) === normalize(correctAnswer);
     }
@@ -228,7 +307,20 @@ class GuessTheSteelerGame {
         this.elements.playerImage.src = imageUrl;
         this.elements.playerImage.alt = player.name;
         this.elements.playerName.textContent = `${player.name} #${player.number} - ${player.position}`;
-        this.elements.playerTrivia.textContent = player.trivia;
+        
+        // Show appropriate trivia based on game mode and question type
+        let triviaText = player.trivia;
+        
+        if (this.currentQuestion.type === 'fantasy' && this.currentQuestion.explanation) {
+            triviaText = this.currentQuestion.explanation;
+        } else if (this.gameMode === 'fantasy' && player.fantasy) {
+            const fantasyTrivia = this.sleeperApi.getFantasyTrivia(player);
+            if (fantasyTrivia) {
+                triviaText = `${player.trivia} Fantasy stats: ${fantasyTrivia}`;
+            }
+        }
+        
+        this.elements.playerTrivia.textContent = triviaText;
     }
     
     updateScore() {
@@ -296,7 +388,8 @@ class GuessTheSteelerGame {
                     const modeDisplay = {
                         'classic': 'Current Roster',
                         'legacy': 'Legacy',
-                        'newPlayers': 'New Players'
+                        'newPlayers': 'New Players',
+                        'fantasy': 'Fantasy'
                     };
                     
                     entry.innerHTML = `

@@ -9,6 +9,10 @@ class SleeperAPIIntegration {
         this.cache = null;
         this.cacheTimestamp = null;
         this.cacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        
+        // Image endpoints for Sleeper
+        this.imageBaseUrl = 'https://sleepercdn.com/content/nfl/players/thumb';
+        this.fallbackImageUrl = 'https://sleepercdn.com/images/v2/icons/player_default.webp';
     }
 
     // Fetch all NFL players from Sleeper API
@@ -30,7 +34,40 @@ class SleeperAPIIntegration {
         }
     }
 
-    // Get current Pittsburgh Steelers roster
+    // Get new Pittsburgh Steelers players (rookies and second-year players)
+    async getNewSteelersPlayers() {
+        try {
+            const allPlayers = await this.fetchPlayers();
+            const newSteelersPlayers = [];
+
+            // Filter for active Steelers players who are new (0-1 years experience)
+            for (const [playerId, player] of Object.entries(allPlayers)) {
+                if (player.team === this.steelersTeamId && 
+                    player.active === true && 
+                    (player.years_exp === 0 || player.years_exp === 1 || player.years_exp === null)) {
+                    
+                    // Convert to our game format
+                    const gamePlayer = this.convertToGameFormat(player, playerId);
+                    if (gamePlayer) {
+                        // Add special marking for new players
+                        gamePlayer.isNewPlayer = true;
+                        gamePlayer.newPlayerType = player.years_exp === 0 || player.years_exp === null ? 'rookie' : 'second-year';
+                        newSteelersPlayers.push(gamePlayer);
+                    }
+                }
+            }
+
+            // Sort by jersey number for consistency
+            newSteelersPlayers.sort((a, b) => a.number - b.number);
+
+            console.log(`Found ${newSteelersPlayers.length} new Steelers players`);
+            return newSteelersPlayers;
+
+        } catch (error) {
+            console.error('Error getting new Steelers players:', error);
+            throw error;
+        }
+    }
     async getCurrentSteelersRoster() {
         try {
             // Check cache first
@@ -112,12 +149,15 @@ class SleeperAPIIntegration {
         if (sleeperPlayer.years_exp !== undefined && sleeperPlayer.years_exp !== null) {
             const years = parseInt(sleeperPlayer.years_exp);
             if (years === 0) {
-                parts.push('rookie season');
+                parts.push('rookie season - new to the Steel City');
             } else if (years === 1) {
-                parts.push('second-year player');
+                parts.push('second-year player building on rookie experience');
             } else {
                 parts.push(`${years + 1} years of NFL experience`);
             }
+        } else {
+            // Handle null years_exp (likely rookie)
+            parts.push('rookie season - new to the NFL');
         }
 
         if (sleeperPlayer.height && sleeperPlayer.weight) {
@@ -164,7 +204,36 @@ class SleeperAPIIntegration {
         }
     }
 
-    // Clear cache (useful for testing)
+    // Get player image URL from Sleeper
+    getSleeperPlayerImage(playerId, playerName) {
+        if (!playerId) {
+            return this.fallbackImageUrl;
+        }
+        
+        // Sleeper player image URL pattern
+        return `${this.imageBaseUrl}/${playerId}.jpg`;
+    }
+
+    // Test if Sleeper image exists, fallback to default if not
+    async getPlayerImageWithFallback(playerId, playerName) {
+        if (!playerId) {
+            return this.fallbackImageUrl;
+        }
+
+        const imageUrl = this.getSleeperPlayerImage(playerId, playerName);
+        
+        try {
+            // Test if the image exists
+            const response = await fetch(imageUrl, { method: 'HEAD' });
+            if (response.ok) {
+                return imageUrl;
+            }
+        } catch (error) {
+            console.log(`Image not found for ${playerName}, using fallback`);
+        }
+        
+        return this.fallbackImageUrl;
+    }
     clearCache() {
         this.cache = null;
         this.cacheTimestamp = null;

@@ -4,8 +4,8 @@
     --steelers-gold: #FFB612;
     --steelers-white: #FFFFFF;
     --steelers-light-gold: #FFC72C;
-    --feedback-incorrect: #FF8C00;  /* Accessible orange instead of red */
-    --feedback-correct: #1E90FF;    /* Accessible blue instead of green */
+    --feedback-incorrect: #D32F2F;  /* Modern red for incorrect answers */
+    --feedback-correct: #388E3C;    /* Modern green for correct answers */
 }
 
 /* Reset and base styles */

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Steeler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with score -->
+        <header class="header">
+            <h1>Guess the Steeler</h1>
+            <div class="score">
+                <span class="correct">Correct: <span id="correct-count">0</span></span>
+                <span class="incorrect">Incorrect: <span id="incorrect-count">0</span></span>
+            </div>
+        </header>
+
+        <!-- Loading screen -->
+        <div id="loading-screen" class="screen">
+            <div class="loading-content">
+                <h2>Loading Steelers Roster...</h2>
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- Game screen -->
+        <div id="game-screen" class="screen hidden">
+            <div class="question-container">
+                <h2 id="question-text"></h2>
+                <div class="input-container">
+                    <input type="text" id="answer-input" placeholder="Enter your answer..." autocomplete="off">
+                    <button id="submit-btn">→</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback screen -->
+        <div id="feedback-screen" class="screen hidden">
+            <div class="feedback-content">
+                <div id="feedback-result" class="result"></div>
+                <div class="player-info">
+                    <img id="player-image" src="" alt="Player" class="player-image">
+                    <h3 id="player-name"></h3>
+                    <p id="player-trivia"></p>
+                </div>
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <!-- Game over screen -->
+        <div id="game-over-screen" class="screen hidden">
+            <div class="game-over-content">
+                <h2>Game Over!</h2>
+                <div class="final-score">
+                    <p>Final Score:</p>
+                    <p class="score-display">
+                        <span class="correct">Correct: <span id="final-correct">0</span></span>
+                        <span class="incorrect">Incorrect: <span id="final-incorrect">0</span></span>
+                    </p>
+                    <p class="percentage">Accuracy: <span id="accuracy">0%</span></p>
+                </div>
+                <button id="restart-btn">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Error screen -->
+        <div id="error-screen" class="screen hidden">
+            <div class="error-content">
+                <h2>Unable to Load Roster</h2>
+                <p>Please check your internet connection and try again.</p>
+                <button id="retry-btn">Retry</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

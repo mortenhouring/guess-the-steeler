@@ -1,6 +1,21 @@
 // Player data for different game modes
 
 const PlayerData = {
+    // Static 2024 roster for comparison purposes
+    static2024Roster: [
+        "Russell Wilson", "Justin Fields", "Kenny Pickett", "Najee Harris", "Jaylen Warren",
+        "T.J. Watt", "Alex Highsmith", "Minkah Fitzpatrick", "Cam Heyward", "George Pickens",
+        "Calvin Austin III", "Pat Freiermuth", "Broderick Jones", "Joey Porter Jr.",
+        "Isaac Seumalo", "Cameron Johnston", "Chris Boswell", "Darnell Washington",
+        "Van Jefferson", "Scotty Miller", "Miles Killebrew", "DeShon Elliott",
+        "Elandon Roberts", "Cole Holcomb", "Nick Herbig", "Markus Golden",
+        "Larry Ogunjobi", "Keeanu Benton", "Isaiahh Loudermilk", "Montravius Adams",
+        "Levi Wallace", "Cory Trice Jr.", "Damontae Kazee", "Keanu Neal",
+        "Mason Rudolph", "Cordarrelle Patterson", "Arthur Smith", "Connor Heyward",
+        "MyCole Pruitt", "Spencer Anderson", "Dan Moore Jr.", "James Daniels",
+        "Nate Herbig", "Troy Fautanu", "Zach Frazier", "Calvin Throckmorton"
+    ],
+
     // Current roster - Current Roster Mode (2025 season)
     classic: [
         {
@@ -283,3 +298,6 @@ const PlayerData = {
         }
     ]
 };
+
+// Export for global access
+window.PlayerData = PlayerData;

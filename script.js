@@ -65,7 +65,7 @@ class GuessTheSteelerGame {
         });
         this.elements.nextBtn.addEventListener('click', () => this.nextQuestion());
         this.elements.restartBtn.addEventListener('click', () => this.restart());
-        this.elements.retryBtn.addEventListener('click', () => this.init());
+        this.elements.retryBtn.addEventListener('click', () => this.returnToMenu());
         
         // Menu event listeners
         this.elements.classicModeBtn.addEventListener('click', () => this.startGame('classic'));
@@ -99,80 +99,56 @@ class GuessTheSteelerGame {
             'legacy': 'Legacy Players',
             'newPlayers': 'New Players'
         };
-        this.updateLoadingMessage(`Loading ${modeNames[this.gameMode] || 'Players'}...`, 'Checking cache...');
+        this.updateLoadingMessage(`Loading ${modeNames[this.gameMode] || 'Players'}...`, 'Connecting to Sleeper API...');
         
-        try {
-            await this.loadPlayers();
-            
-            // Provide feedback about successful load
-            const playerCount = this.players.length;
-            this.updateLoadingMessage('Ready to play!', `Loaded ${playerCount} players`);
-            
-            // Add a brief delay to show success message
-            setTimeout(() => {
-                this.nextQuestion();
-            }, 800);
-        } catch (error) {
-            console.error('Failed to load players:', error);
-            this.showScreen('error');
-        }
+        await this.loadPlayers();
+        
+        // Provide feedback about successful load
+        const playerCount = this.players.length;
+        this.updateLoadingMessage('Ready to play!', `Loaded ${playerCount} players`);
+        
+        // Add a brief delay to show success message
+        setTimeout(() => {
+            this.nextQuestion();
+        }, 800);
     }
     
     async loadPlayers() {
-        try {
-            let rawPlayers;
-            
-            console.log(`Loading players for game mode: ${this.gameMode}`);
-            
-            // Use Sleeper API for all modes now
-            if (this.gameMode === 'classic') {
-                try {
-                    console.log('Attempting to load current roster from Sleeper API...');
-                    this.updateLoadingMessage('Loading Current Roster...', 'Fetching from API or cache...');
-                    rawPlayers = await this.sleeperAPI.getCurrentSteelersRoster();
-                    console.log(`Loaded ${rawPlayers.length} players from Sleeper API`);
-                    this.updateLoadingMessage('Current Roster Loaded!', `Found ${rawPlayers.length} active players`);
-                } catch (apiError) {
-                    console.warn('Sleeper API failed, falling back to static data:', apiError);
-                    this.updateLoadingMessage('API Unavailable', 'Using offline roster...');
-                    rawPlayers = PlayerData.classic;
-                }
-            } else if (this.gameMode === 'newPlayers') {
-                // Use Sleeper API exclusively for new players
-                try {
-                    console.log('Loading new players from Sleeper API...');
-                    this.updateLoadingMessage('Loading New Players...', 'Fetching rookies and new signings...');
-                    rawPlayers = await this.sleeperAPI.getNewSteelersPlayers();
-                    console.log(`Loaded ${rawPlayers.length} new players from Sleeper API`);
-                    this.updateLoadingMessage('New Players Loaded!', `Found ${rawPlayers.length} new additions`);
-                } catch (apiError) {
-                    console.error('Sleeper API failed for new players:', apiError);
-                    this.updateLoadingMessage('API Unavailable', 'Using offline new players...');
-                    // Fallback to static data if API fails
-                    rawPlayers = PlayerData.newPlayers;
-                }
-            } else {
-                // For legacy mode, use static data
-                console.log(`Using static data for ${this.gameMode} mode`);
-                this.updateLoadingMessage('Loading Legacy Players...', 'Loading franchise legends...');
-                rawPlayers = PlayerData.legacy;
-            }
-            
-            // For Sleeper API data, we don't need NFLverse enhancement for images
-            if (this.gameMode === 'classic' || this.gameMode === 'newPlayers') {
-                this.players = rawPlayers; // Use Sleeper data directly
-            } else {
-                // Enhance legacy player data with NFLverse integration
-                this.updateLoadingMessage('Loading Legacy Players...', 'Enhancing with player images...');
-                this.players = this.nflverse.enhancePlayerData(rawPlayers);
-            }
-            
-            if (this.players.length === 0) {
-                throw new Error('No players loaded');
-            }
-        } catch (error) {
-            this.updateLoadingMessage('Error Loading Players', 'Please check your connection...');
-            throw new Error('Unable to load Steelers roster');
+        let rawPlayers;
+        
+        console.log(`Loading players for game mode: ${this.gameMode}`);
+        
+        // Use Sleeper API for current roster and new players modes
+        if (this.gameMode === 'classic') {
+            console.log('Loading current roster from Sleeper API...');
+            this.updateLoadingMessage('Loading Current Roster...', 'Fetching from Sleeper API...');
+            rawPlayers = await this.sleeperAPI.getCurrentSteelersRoster();
+            console.log(`Loaded ${rawPlayers.length} players from Sleeper API`);
+            this.updateLoadingMessage('Current Roster Loaded!', `Found ${rawPlayers.length} active players`);
+        } else if (this.gameMode === 'newPlayers') {
+            console.log('Loading new players from Sleeper API...');
+            this.updateLoadingMessage('Loading New Players...', 'Fetching rookies and new signings...');
+            rawPlayers = await this.sleeperAPI.getNewSteelersPlayers();
+            console.log(`Loaded ${rawPlayers.length} new players from Sleeper API`);
+            this.updateLoadingMessage('New Players Loaded!', `Found ${rawPlayers.length} new additions`);
+        } else {
+            // For legacy mode, use static data
+            console.log(`Using static data for ${this.gameMode} mode`);
+            this.updateLoadingMessage('Loading Legacy Players...', 'Loading franchise legends...');
+            rawPlayers = PlayerData.legacy;
+        }
+        
+        // For Sleeper API data, use directly without NFLverse enhancement
+        if (this.gameMode === 'classic' || this.gameMode === 'newPlayers') {
+            this.players = rawPlayers; // Use Sleeper data directly
+        } else {
+            // Enhance legacy player data with NFLverse integration
+            this.updateLoadingMessage('Loading Legacy Players...', 'Enhancing with player images...');
+            this.players = this.nflverse.enhancePlayerData(rawPlayers);
+        }
+        
+        if (this.players.length === 0) {
+            throw new Error('No players loaded from Sleeper API');
         }
     }
     

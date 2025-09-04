@@ -156,7 +156,7 @@ class SleeperAPIIntegration {
         }
     }
 
-    // Get new Pittsburgh Steelers players (rookies and second-year players)
+    // Get new Pittsburgh Steelers players (rookies and players not in 2024 roster)
     async getNewSteelersPlayers() {
         try {
             // Check localStorage cache first
@@ -170,19 +170,27 @@ class SleeperAPIIntegration {
             const allPlayers = await this.fetchPlayers();
             const newSteelersPlayers = [];
 
-            // Filter for active Steelers players who are new (0-1 years experience)
+            // Get 2024 roster for comparison
+            const static2024Roster = window.PlayerData?.static2024Roster || [];
+
+            // Filter for active Steelers players who are new
             for (const [playerId, player] of Object.entries(allPlayers)) {
-                if (player.team === this.steelersTeamId && 
-                    player.active === true && 
-                    (player.years_exp === 0 || player.years_exp === 1 || player.years_exp === null)) {
+                if (player.team === this.steelersTeamId && player.active === true) {
+                    const fullName = `${player.first_name} ${player.last_name}`;
                     
-                    // Convert to our game format
-                    const gamePlayer = this.convertToGameFormat(player, playerId);
-                    if (gamePlayer) {
-                        // Add special marking for new players
-                        gamePlayer.isNewPlayer = true;
-                        gamePlayer.newPlayerType = player.years_exp === 0 || player.years_exp === null ? 'rookie' : 'second-year';
-                        newSteelersPlayers.push(gamePlayer);
+                    // Check if player is a rookie (years_exp = 0) OR not in 2024 roster
+                    const isRookie = player.years_exp === 0 || player.years_exp === null;
+                    const notIn2024Roster = !static2024Roster.includes(fullName);
+                    
+                    if (isRookie || notIn2024Roster) {
+                        // Convert to our game format
+                        const gamePlayer = this.convertToGameFormat(player, playerId);
+                        if (gamePlayer) {
+                            // Add special marking for new players
+                            gamePlayer.isNewPlayer = true;
+                            gamePlayer.newPlayerType = isRookie ? 'rookie' : 'new-signing';
+                            newSteelersPlayers.push(gamePlayer);
+                        }
                     }
                 }
             }

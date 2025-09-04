@@ -156,7 +156,7 @@ class SleeperAPIIntegration {
         }
     }
 
-    // Get new Pittsburgh Steelers players (rookies and second-year players)
+    // Get new Pittsburgh Steelers players (based on first year with team, not total NFL experience)
     async getNewSteelersPlayers() {
         try {
             // Check localStorage cache first
@@ -170,19 +170,49 @@ class SleeperAPIIntegration {
             const allPlayers = await this.fetchPlayers();
             const newSteelersPlayers = [];
 
-            // Filter for active Steelers players who are new (0-1 years experience)
+            // Known new players for 2025 season (first year with Pittsburgh Steelers)
+            const knownNewPlayers = [
+                'Russell Wilson', 'Justin Fields', 'Calvin Austin III', 'Roman Wilson',
+                'Troy Fautanu', 'Zach Frazier', 'Payton Wilson', 'Logan Lee',
+                'Ryan McCollum', 'Donte Jackson', 'Cameron Johnston', 'Ben Skowronek'
+            ];
+
+            // Filter for active Steelers players who are new to the team this season
             for (const [playerId, player] of Object.entries(allPlayers)) {
-                if (player.team === this.steelersTeamId && 
-                    player.active === true && 
-                    (player.years_exp === 0 || player.years_exp === 1 || player.years_exp === null)) {
+                if (player.team === this.steelersTeamId && player.active === true) {
+                    const fullName = `${player.first_name} ${player.last_name}`;
                     
-                    // Convert to our game format
-                    const gamePlayer = this.convertToGameFormat(player, playerId);
-                    if (gamePlayer) {
-                        // Add special marking for new players
-                        gamePlayer.isNewPlayer = true;
-                        gamePlayer.newPlayerType = player.years_exp === 0 || player.years_exp === null ? 'rookie' : 'second-year';
-                        newSteelersPlayers.push(gamePlayer);
+                    // Check if player is new to the team (either rookie or known new acquisition)
+                    const isRookie = player.years_exp === 0 || player.years_exp === null;
+                    const isKnownNewPlayer = knownNewPlayers.includes(fullName);
+                    const isLikelyNewPlayer = player.years_exp <= 2; // Include players with low experience who might be new to team
+                    
+                    if (isRookie || isKnownNewPlayer || isLikelyNewPlayer) {
+                        // Determine team status for trivia generation
+                        let teamStatus = null;
+                        if (isRookie) {
+                            teamStatus = 'rookie season - first year in NFL and with Steelers';
+                        } else if (isKnownNewPlayer) {
+                            teamStatus = 'first season with the Pittsburgh Steelers';
+                        }
+                        
+                        // Convert to our game format
+                        const gamePlayer = this.convertToGameFormat(player, playerId, teamStatus);
+                        if (gamePlayer) {
+                            // Add special marking for new players
+                            gamePlayer.isNewPlayer = true;
+                            
+                            // Determine player type based on actual status, not just NFL experience
+                            if (isRookie) {
+                                gamePlayer.newPlayerType = 'rookie';
+                            } else if (isKnownNewPlayer) {
+                                gamePlayer.newPlayerType = 'new-acquisition';
+                            } else {
+                                gamePlayer.newPlayerType = 'potential-new';
+                            }
+                            
+                            newSteelersPlayers.push(gamePlayer);
+                        }
                     }
                 }
             }
@@ -193,7 +223,7 @@ class SleeperAPIIntegration {
             // Cache the results
             this.saveToLocalStorage(newSteelersPlayers, 'newPlayers');
 
-            console.log(`Found ${newSteelersPlayers.length} new Steelers players`);
+            console.log(`Found ${newSteelersPlayers.length} new Steelers players (based on first year with team)`);
             return newSteelersPlayers;
 
         } catch (error) {
@@ -254,7 +284,7 @@ class SleeperAPIIntegration {
     }
 
     // Convert Sleeper player format to our game format
-    convertToGameFormat(sleeperPlayer, playerId) {
+    convertToGameFormat(sleeperPlayer, playerId, teamStatus = null) {
         if (!sleeperPlayer.first_name || !sleeperPlayer.last_name) {
             return null; // Skip players without complete names
         }
@@ -270,7 +300,7 @@ class SleeperAPIIntegration {
             name: fullName,
             number: parseInt(sleeperPlayer.number),
             position: sleeperPlayer.position || 'N/A',
-            trivia: this.generateTrivia(fullName, sleeperPlayer),
+            trivia: this.generateTrivia(fullName, sleeperPlayer, teamStatus),
             sleeperId: playerId,
             // Add additional data for image lookup
             firstName: sleeperPlayer.first_name,
@@ -285,14 +315,17 @@ class SleeperAPIIntegration {
     }
 
     // Generate trivia text for players
-    generateTrivia(fullName, sleeperPlayer) {
+    generateTrivia(fullName, sleeperPlayer, teamStatus = null) {
         const parts = [];
         
         if (sleeperPlayer.college) {
             parts.push(`${sleeperPlayer.college} product`);
         }
         
-        if (sleeperPlayer.years_exp !== undefined && sleeperPlayer.years_exp !== null) {
+        // Use teamStatus if provided (for new players), otherwise use NFL experience
+        if (teamStatus) {
+            parts.push(teamStatus);
+        } else if (sleeperPlayer.years_exp !== undefined && sleeperPlayer.years_exp !== null) {
             const years = parseInt(sleeperPlayer.years_exp);
             if (years === 0) {
                 parts.push('rookie season - new to the Steel City');

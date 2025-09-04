@@ -126,31 +126,18 @@ class GuessTheSteelerGame {
             
             // Use Sleeper API for all modes now
             if (this.gameMode === 'classic') {
-                try {
-                    console.log('Attempting to load current roster from Sleeper API...');
-                    this.updateLoadingMessage('Loading Current Roster...', 'Fetching from API or cache...');
-                    rawPlayers = await this.sleeperAPI.getCurrentSteelersRoster();
-                    console.log(`Loaded ${rawPlayers.length} players from Sleeper API`);
-                    this.updateLoadingMessage('Current Roster Loaded!', `Found ${rawPlayers.length} active players`);
-                } catch (apiError) {
-                    console.warn('Sleeper API failed, falling back to static data:', apiError);
-                    this.updateLoadingMessage('API Unavailable', 'Using offline roster...');
-                    rawPlayers = PlayerData.classic;
-                }
+                console.log('Attempting to load current roster from Sleeper API...');
+                this.updateLoadingMessage('Loading Current Roster...', 'Fetching from API or cache...');
+                rawPlayers = await this.sleeperAPI.getCurrentSteelersRoster();
+                console.log(`Loaded ${rawPlayers.length} players from Sleeper API`);
+                this.updateLoadingMessage('Current Roster Loaded!', `Found ${rawPlayers.length} active players`);
             } else if (this.gameMode === 'newPlayers') {
                 // Use Sleeper API exclusively for new players
-                try {
-                    console.log('Loading new players from Sleeper API...');
-                    this.updateLoadingMessage('Loading New Players...', 'Fetching rookies and new signings...');
-                    rawPlayers = await this.sleeperAPI.getNewSteelersPlayers();
-                    console.log(`Loaded ${rawPlayers.length} new players from Sleeper API`);
-                    this.updateLoadingMessage('New Players Loaded!', `Found ${rawPlayers.length} new additions`);
-                } catch (apiError) {
-                    console.error('Sleeper API failed for new players:', apiError);
-                    this.updateLoadingMessage('API Unavailable', 'Using offline new players...');
-                    // Fallback to static data if API fails
-                    rawPlayers = PlayerData.newPlayers;
-                }
+                console.log('Loading new players from Sleeper API...');
+                this.updateLoadingMessage('Loading New Players...', 'Fetching rookies and new signings...');
+                rawPlayers = await this.sleeperAPI.getNewSteelersPlayers();
+                console.log(`Loaded ${rawPlayers.length} new players from Sleeper API`);
+                this.updateLoadingMessage('New Players Loaded!', `Found ${rawPlayers.length} new additions`);
             } else {
                 // For legacy mode, use static data
                 console.log(`Using static data for ${this.gameMode} mode`);
